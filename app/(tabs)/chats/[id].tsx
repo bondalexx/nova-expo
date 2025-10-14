@@ -6,7 +6,6 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -237,7 +236,7 @@ export default function ChatRoom() {
   console.log(messages);
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1 bg-[#0A0A0A]"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       {/* Header */}
@@ -251,21 +250,23 @@ export default function ChatRoom() {
           const mine = item.senderId === user?.id;
           return (
             <View
-              style={[
-                styles.bubble,
-                mine ? styles.bubbleMine : styles.bubbleOther,
-              ]}
+              className={`rounded-xl py-2 px-[10px] my-1 max-w-[80%] ${
+                mine
+                  ? "self-end bg-[#1f6feb]"
+                  : "self-start bg-[#1A1A1A] border border-[#242424]"
+              }`}
             >
               <Text
-                style={[
-                  styles.bubbleText,
-                  mine ? styles.bubbleTextMine : styles.bubbleTextOther,
-                ]}
+                className={`text-[15px] leading-5 ${
+                  mine ? "text-white" : "text-white"
+                }`}
               >
                 {item.content}
               </Text>
               <Text
-                style={[styles.meta, mine ? styles.metaMine : styles.metaOther]}
+                className={`text-[10px] mt-1 ${
+                  mine ? "text-[#dfe9ff]" : "text-[#8F8F8F]"
+                }`}
               >
                 {item.createdAt.toLocaleTimeString([], {
                   hour: "2-digit",
@@ -275,36 +276,36 @@ export default function ChatRoom() {
             </View>
           );
         }}
-        contentContainerStyle={styles.listContent}
+        contentContainerClassName="flex-grow justify-end px-3 py-2"
         ListEmptyComponent={
           !loadingHistory ? (
-            <View style={styles.empty}>
-              <Text style={{ color: "#8F8F8F" }}>No messages yet</Text>
+            <View className="flex-1 items-center justify-center py-6">
+              <Text className="text-[#8F8F8F]">No messages yet</Text>
             </View>
           ) : null
         }
         ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Room {chatId}</Text>
+          <View className="h-[52px] flex-row items-center justify-between px-3 border-b border-[#242424] bg-[#0A0A0A]">
+            <Text className="font-bold text-white text-base">
+              Room {chatId}
+            </Text>
             <View
-              style={[
-                styles.status,
+              className={`px-2 py-[2px] rounded-lg ${
                 status === "online"
-                  ? styles.statusOnline
+                  ? "bg-[rgba(0,128,0,0.15)]"
                   : status === "connecting"
-                  ? styles.statusConnecting
-                  : styles.statusError,
-              ]}
+                    ? "bg-[rgba(255,165,0,0.2)]"
+                    : "bg-[rgba(255,0,0,0.15)]"
+              }`}
             >
               <Text
-                style={[
-                  styles.statusText,
+                className={`text-[12px] ${
                   status === "online"
-                    ? styles.statusTextOnline
+                    ? "text-[#2ecc71]"
                     : status === "connecting"
-                    ? styles.statusTextConnecting
-                    : styles.statusTextError,
-                ]}
+                      ? "text-[#f1c40f]"
+                      : "text-[#e74c3c]"
+                }`}
               >
                 {status}
               </Text>
@@ -314,7 +315,7 @@ export default function ChatRoom() {
       />
 
       {/* Composer */}
-      <View style={styles.composer}>
+      <View className="flex-row items-center gap-2 p-2 border-t border-[#242424] bg-[#0A0A0A]">
         <TextInput
           placeholder={
             status === "online" ? "Write a message..." : "Connecting..."
@@ -324,142 +325,29 @@ export default function ChatRoom() {
           onChangeText={setText}
           onSubmitEditing={() => text.trim() && onSend()}
           editable={status === "online"}
-          style={styles.input}
+          className="flex-1 h-11 border border-[#242424] rounded-[22px] px-[14px] text-white bg-[#121214]"
         />
         <TouchableOpacity
           onPress={onSend}
           disabled={status !== "online" || !text.trim()}
-          style={[
-            styles.sendBtn,
-            (status !== "online" || !text.trim()) && { opacity: 0.5 },
-          ]}
+          className={`h-11 px-[14px] rounded-[22px] items-center justify-center bg-white ${
+            status !== "online" || !text.trim() ? "opacity-50" : ""
+          }`}
         >
           <Ionicons name="send" size={20} color="#0A0A0A" />
         </TouchableOpacity>
       </View>
 
       {loadingHistory && (
-        <View style={styles.loaderOverlay}>
+        <View className="absolute top-[54px] right-3 bg-[rgba(10,10,10,0.7)] px-2 py-[6px] rounded-lg">
           <ActivityIndicator size="small" color="#0A84FF" />
         </View>
       )}
       {!!historyError && (
-        <View style={styles.errorBar}>
-          <Text style={{ color: "#fff", fontSize: 12 }}>{historyError}</Text>
+        <View className="absolute bottom-16 left-3 right-3 p-[10px] bg-[#A61B1B] rounded-xl border border-[#7F1515]">
+          <Text className="text-white text-[12px]">{historyError}</Text>
         </View>
       )}
     </KeyboardAvoidingView>
   );
 }
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0A0A0A" },
-
-  header: {
-    height: 52,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderColor: "#242424",
-    backgroundColor: "#0A0A0A",
-  },
-  headerTitle: { fontWeight: "700", color: "#FFFFFF", fontSize: 16 },
-
-  status: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  statusOnline: { backgroundColor: "rgba(0, 128, 0, 0.15)" },
-  statusConnecting: { backgroundColor: "rgba(255, 165, 0, 0.2)" },
-  statusError: { backgroundColor: "rgba(255, 0, 0, 0.15)" },
-
-  statusText: { fontSize: 12 },
-  statusTextOnline: { color: "#2ecc71" },
-  statusTextConnecting: { color: "#f1c40f" },
-  statusTextError: { color: "#e74c3c" },
-
-  listContent: {
-    flexGrow: 1,
-    justifyContent: "flex-end",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-
-  empty: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 24,
-  },
-
-  bubble: {
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    marginVertical: 4,
-    maxWidth: "80%",
-  },
-  bubbleMine: { alignSelf: "flex-end", backgroundColor: "#1f6feb" },
-  bubbleOther: {
-    alignSelf: "flex-start",
-    backgroundColor: "#1A1A1A",
-    borderWidth: 1,
-    borderColor: "#242424",
-  },
-
-  bubbleText: { fontSize: 15, lineHeight: 20 },
-  bubbleTextMine: { color: "#FFFFFF" },
-  bubbleTextOther: { color: "#FFFFFF" },
-
-  meta: { fontSize: 10, marginTop: 4 },
-  metaMine: { color: "#dfe9ff" },
-  metaOther: { color: "#8F8F8F" },
-
-  composer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    padding: 8,
-    borderTopWidth: 1,
-    borderColor: "#242424",
-    backgroundColor: "#0A0A0A",
-  },
-  input: {
-    flex: 1,
-    height: 44,
-    borderWidth: 1,
-    borderColor: "#242424",
-    borderRadius: 22,
-    paddingHorizontal: 14,
-    color: "#FFFFFF",
-    backgroundColor: "#121214",
-  },
-  sendBtn: {
-    height: 44,
-    paddingHorizontal: 14,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF",
-  },
-
-  loaderOverlay: {
-    position: "absolute",
-    top: 54,
-    right: 12,
-    backgroundColor: "rgba(10,10,10,0.7)",
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-
-  errorBar: {
-    position: "absolute",
-    bottom: 64,
-    left: 12,
-    right: 12,
-    padding: 10,
-    backgroundColor: "#A61B1B",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#7F1515",
-  },
-});

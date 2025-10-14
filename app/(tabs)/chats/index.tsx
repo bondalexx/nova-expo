@@ -6,7 +6,6 @@ import {
   FlatList,
   Image,
   Pressable,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -56,12 +55,15 @@ export default function ChatsPage() {
       <Pressable
         onPress={() => router.push(`/chats/${item.id}`)}
         android_ripple={{ color: "rgba(255,255,255,0.08)" }}
-        style={styles.card}
+        className="flex-row items-center bg-[#121214] border border-[#242424] rounded-xl px-[14px] py-3"
       >
         {item.avatarUrl ? (
-          <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
+          <Image
+            source={{ uri: item.avatarUrl }}
+            className="w-11 h-11 rounded-full"
+          />
         ) : (
-          <View style={styles.avatarFallback}>
+          <View className="w-11 h-11 rounded-full bg-[#1A1A1A] border border-[#242424] items-center justify-center">
             <Ionicons
               name="chatbubble-ellipses-outline"
               size={22}
@@ -70,17 +72,19 @@ export default function ChatsPage() {
           </View>
         )}
 
-        <View style={styles.textWrap}>
-          <Text style={styles.title} numberOfLines={1}>
+        <View className="flex-1 ml-3">
+          <Text className="text-white text-base font-bold" numberOfLines={1}>
             {item.otherUser?.displayName ?? "Unknown"}
           </Text>
 
           {/* Optional: add a preview/subtitle if you have lastMessage */}
-          {/* <Text style={styles.subtitle} numberOfLines={1}>{item.lastMessage ?? ""}</Text> */}
+          {/* <Text className="mt-0.5 text-[#8F8F8F] text-[13px]" numberOfLines={1}>
+        {item.lastMessage ?? ""}
+      </Text> */}
         </View>
 
         {item.updatedAt ? (
-          <Text style={styles.time}>
+          <Text className="text-[#8F8F8F] text-xs ml-2">
             {new Date(item.updatedAt).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -91,69 +95,15 @@ export default function ChatsPage() {
     );
   };
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-[#0A0A0A]">
       <FlatList
         data={chats}
         keyExtractor={(c) => c.id}
         renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-        ListFooterComponent={<View style={{ height: 8 }} />}
+        contentContainerClassName="p-4"
+        ItemSeparatorComponent={() => <View className="h-[10px]" />}
+        ListFooterComponent={<View className="h-2" />}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0A0A0A",
-  },
-  listContent: {
-    padding: 16,
-  },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#121214",
-    borderWidth: 1,
-    borderColor: "#242424",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
-  avatarFallback: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#1A1A1A",
-    borderWidth: 1,
-    borderColor: "#242424",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textWrap: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  title: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  subtitle: {
-    marginTop: 2,
-    color: "#8F8F8F",
-    fontSize: 13,
-  },
-  time: {
-    color: "#8F8F8F",
-    fontSize: 12,
-    marginLeft: 8,
-  },
-});

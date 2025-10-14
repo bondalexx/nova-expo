@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import "../../global.css";
 import { useAuth } from "../../store/auth";
 
 export default function SignInScreen() {
@@ -37,9 +38,11 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.title}>Login in to Nova</Text>
+    <View className="flex-1 bg-[#0A0A0A] justify-center items-center">
+      <View className="flex-col items-center gap-4">
+        <Text className="text-4xl font-bold text-white mb-2">
+          Login in to Nova
+        </Text>
 
         <TextInput
           placeholder="Email"
@@ -48,7 +51,7 @@ export default function SignInScreen() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
-          style={styles.input}
+          className="h-12 w-80 rounded-xl border border-[#242424] px-[14px] text-lg text-white"
         />
 
         <TextInput
@@ -57,24 +60,26 @@ export default function SignInScreen() {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          style={styles.input}
+          className="h-12 w-80 rounded-xl border border-[#242424] px-[14px] text-lg text-white"
         />
 
         <TouchableOpacity
-          style={styles.button}
+          className={`h-12 w-80 rounded-xl bg-white justify-center items-center ${
+            loading ? "opacity-60" : ""
+          }`}
           onPress={onSubmit}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>
+          <Text className="text-lg font-semibold text-[#0A0A0A]">
             {loading ? "Signing in..." : "Login"}
           </Text>
         </TouchableOpacity>
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text className="text-sm text-red-500">{error}</Text> : null}
 
-        <Text style={styles.linkText}>
-          Don't have an account?{" "}
-          <Link href="/sign-up" style={styles.link}>
+        <Text className="text-base text-white mt-1">
+          Don&apos;t have an account?{" "}
+          <Link href="/sign-up" className="text-[#0A84FF] underline">
             Sign up
           </Link>
         </Text>

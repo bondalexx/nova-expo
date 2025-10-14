@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { useEffect } from "react";
+import "../global.css";
 import { useAuth } from "../store/auth";
-
 export default function RootLayout() {
   const { restoreFromStorage, initialized } = useAuth();
 
