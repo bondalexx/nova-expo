@@ -1,3 +1,4 @@
+import { storage } from "@/utils/storage";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 import api from "../lib/api";
@@ -22,6 +23,7 @@ type State = {
 
 async function saveAccessToken(token: string) {
   await SecureStore.setItemAsync("accessToken", token);
+  await storage.setString("sessionToken", token);
 }
 
 export const useAuth = create<State>((set, get) => ({
@@ -63,6 +65,7 @@ export const useAuth = create<State>((set, get) => ({
         user: User;
       };
       await saveAccessToken(accessToken);
+
       set({ accessToken, user, isAuthenticated: true, loading: false });
     } catch (e: any) {
       set({

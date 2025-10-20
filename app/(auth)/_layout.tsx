@@ -1,5 +1,6 @@
 import { Slot, useRouter } from "expo-router";
 import { useEffect } from "react";
+import { showMessage } from "react-native-flash-message"; // ← ADD THIS
 import { useAuth } from "../../store/auth";
 
 export default function AuthLayout() {
@@ -7,7 +8,10 @@ export default function AuthLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated) router.replace("/(tabs)/chats");
+    if (isAuthenticated) {
+      showMessage({ message: "Logged in", type: "success" }); // ← ADD THIS
+      router.replace("/(tabs)/chats");
+    }
   }, [isAuthenticated]);
 
   return <Slot />;
