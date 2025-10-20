@@ -1,5 +1,4 @@
-import { storage } from "@/utils/storage";
-import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import api from "../lib/api";
 
@@ -9,6 +8,7 @@ type User = {
   displayName?: string;
   avatarUrl?: string | null;
 };
+
 type State = {
   user: User | null;
   accessToken: string | null;
@@ -21,9 +21,16 @@ type State = {
   signOut: () => Promise<void>;
 };
 
-async function saveAccessToken(token: string) {
-  await SecureStore.setItemAsync("accessToken", token);
-  await storage.setString("sessionToken", token);
+const TOKEN_KEY = "accessToken";
+
+async function setToken(token: string) {
+  await AsyncStorage.setItem(TOKEN_KEY, token);
+}
+async function getToken() {
+  return AsyncStorage.getItem(TOKEN_KEY);
+}
+async function deleteToken() {
+  await AsyncStorage.removeItem(TOKEN_KEY);
 }
 
 export const useAuth = create<State>((set, get) => ({
@@ -36,15 +43,31 @@ export const useAuth = create<State>((set, get) => ({
 
   restoreFromStorage: async () => {
     try {
-      const token = await SecureStore.getItemAsync("accessToken");
+      const token = await getToken();
+
       if (!token) {
-        set({ initialized: true });
+        delete api.defaults.headers.common["Authorization"];
+        set({
+          initialized: true,
+          accessToken: null,
+          isAuthenticated: false,
+          user: null,
+        });
         return;
       }
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       set({ accessToken: token });
-      const { data } = await api.get<User>("/me");
-      set({ user: data, isAuthenticated: true, initialized: true });
-    } catch {
+
+      if (!get().user) {
+        const { data } = await api.get<User>("/me");
+        set({ user: data });
+      }
+
+      set({ isAuthenticated: true, initialized: true });
+    } catch (e) {
+      // any error → clear auth
+      delete api.defaults.headers.common["Authorization"];
       set({
         initialized: true,
         accessToken: null,
@@ -60,26 +83,39 @@ export const useAuth = create<State>((set, get) => ({
       const res = await api.post("/auth/signin", { email, password }, {
         requiresAuth: false,
       } as any);
+
       const { accessToken, user } = res.data as {
         accessToken: string;
-        user: User;
+        user?: User;
       };
-      await saveAccessToken(accessToken);
 
-      set({ accessToken, user, isAuthenticated: true, loading: false });
+      await setToken(accessToken);
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      set({
+        accessToken,
+        user: user ?? null,
+        isAuthenticated: true,
+      });
+      await get().restoreFromStorage();
+
+      set({ loading: false });
     } catch (e: any) {
+      delete api.defaults.headers.common["Authorization"];
       set({
         error: e?.response?.data?.message || "Sign-in failed",
         loading: false,
         isAuthenticated: false,
         accessToken: null,
+        user: null,
       });
       throw e;
     }
   },
 
   signOut: async () => {
-    await SecureStore.deleteItemAsync("accessToken");
+    await deleteToken();
+    delete api.defaults.headers.common["Authorization"];
     set({ user: null, accessToken: null, isAuthenticated: false });
   },
 }));

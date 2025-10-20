@@ -10,12 +10,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { PickedFile } from "../../components/AttachSheet";
+import ChatDetailsTabs from "../../components/ChatDetailsTabs";
+import "../../global.css";
 import api from "../../lib/api";
 import { connectWithToken } from "../../lib/socket";
 import { useAuth } from "../../store/auth";
-
-import { PickedFile } from "../../components/AttachSheet";
-import ChatDetailsTabs from "../../components/ChatDetailsTabs";
 
 type MessageDTO = {
   id: string;
@@ -80,8 +80,8 @@ const useScreen = () => {
         return m.sender?.displayName || "Chat";
       }
     }
-    return `Room ${chatId}`;
-  }, [messages, user?.id, chatId]);
+    return `Chat`;
+  }, [messages, user?.id]);
 
   useEffect(() => {
     let mounted = true;

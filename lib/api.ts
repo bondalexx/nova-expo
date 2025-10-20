@@ -6,7 +6,7 @@ import axios, {
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-
+import { useAuth } from "../store/auth";
 type Tokens = { accessToken: string; refreshToken: string };
 type AuthAxiosConfig = InternalAxiosRequestConfig & { requiresAuth?: boolean };
 
@@ -24,7 +24,8 @@ const instance = axios.create({
 
 // ========= Helpers =========
 async function getAccessToken() {
-  return SecureStore.getItemAsync("accessToken");
+  const token = useAuth.getState().accessToken;
+  return token;
 }
 async function getRefreshToken() {
   return SecureStore.getItemAsync("refreshToken");
@@ -36,7 +37,7 @@ async function saveTokens(tokens: Tokens) {
 
 // ========= Request: attach Authorization only when required =========
 instance.interceptors.request.use(async (config: any) => {
-  const token = await SecureStore.getItemAsync("accessToken");
+  const token = await getAccessToken();
   const url = `${config.baseURL ?? ""}${config.url ?? ""}`;
   const needsAuth = config.requiresAuth !== false;
   if (needsAuth && token) {

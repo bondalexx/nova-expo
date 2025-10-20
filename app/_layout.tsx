@@ -6,13 +6,11 @@ import "../global.css";
 import { useAuth } from "../store/auth";
 
 export default function RootLayout() {
-  const { restoreFromStorage, initialized } = useAuth();
+  const restore = useAuth((s) => s.restoreFromStorage);
 
   useEffect(() => {
-    restoreFromStorage();
-  }, []);
-
-  if (!initialized) return null;
+    restore();
+  }, [restore]);
 
   return (
     <>
