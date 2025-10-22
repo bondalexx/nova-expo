@@ -13,14 +13,12 @@ export default function RootLayout() {
   }, [restore]);
 
   return (
-    <>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-        <FlashMessage position="top" />
-      </GestureHandlerRootView>
-    </>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+      <FlashMessage position="top" />
+    </GestureHandlerRootView>
   );
 }

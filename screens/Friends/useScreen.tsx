@@ -15,7 +15,7 @@ const useScreen = () => {
     <FlatList
       data={friends}
       keyExtractor={(item) => item.id}
-      contentContainerClassName="p-4"
+      contentContainerClassName=""
       ItemSeparatorComponent={() => <View className="h-[10px]" />}
       renderItem={({ item }) => (
         <View className="flex-row items-center bg-[#121214] border border-[#242424] rounded-xl p-[14px]">

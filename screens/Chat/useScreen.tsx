@@ -1,3 +1,4 @@
+import MessageText from "@/components/MessageText";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -101,7 +102,10 @@ const useScreen = () => {
         const res = await api.get<ServerHistory>(`/messages/${chatId}`, {
           params: { limit: 50 },
         } as any);
-        const list = (res.data.items ?? []).map(toClientMessage);
+        const list = (res.data.items ?? [])
+          .map(toClientMessage)
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        setMessages(list);
         if (mounted) setMessages(list);
       } catch (e: any) {
         if (mounted)
@@ -167,12 +171,15 @@ const useScreen = () => {
     };
 
     const onReceive = (msg: MessageDTO) => {
-      console.log("[socket receive]", msg);
-      setMessages((prev) => [...prev, toClientMessage(msg)]);
+      const cm = toClientMessage(msg);
+      setMessages((prev) => [cm, ...prev]);
     };
 
     const onHistory = (payload: ServerHistory) => {
-      setMessages((payload?.items ?? []).map(toClientMessage));
+      const list = (payload?.items ?? [])
+        .map(toClientMessage)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      setMessages(list);
     };
 
     sock.onAny(onAny);
@@ -353,11 +360,8 @@ const useScreen = () => {
                 : "self-start bg-[#1A1A1A] border border-[#242424]"
             }`}
           >
-            <Text
-              className={`text-[15px] leading-5 ${mine ? "text-white" : "text-white"}`}
-            >
-              {item.content}
-            </Text>
+            <MessageText text={item.content} />
+
             <Text
               className={`text-[10px] mt-1 ${
                 mine ? "text-[#dfe9ff]" : "text-[#8F8F8F]"

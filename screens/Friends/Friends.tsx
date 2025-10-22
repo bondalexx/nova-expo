@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator, Text, View } from "react-native";
+import { router } from "expo-router";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import "../../global.css";
 import useScreen from "./useScreen";
 const Friends = () => {
@@ -29,7 +30,18 @@ const Friends = () => {
       </View>
     );
   }
-  return <View className="flex-1 bg-[#0A0A0A]">{friendsList}</View>;
+  return (
+    <View className="flex-1 flex-col gap-4 bg-[#0A0A0A] p-4">
+      <TouchableOpacity
+        onPress={() => router.push("/add-friend")}
+        className="flex-row items-center gap-2 p-4 bg-[#313885] rounded-xl  border border-[#2a2a2f] active:opacity-80"
+      >
+        <Ionicons name="person-add" size={18} color="#FFFFFF" />
+        <Text className="text-white text-[16px] font-bold ">Add friends</Text>
+      </TouchableOpacity>
+      {friendsList}
+    </View>
+  );
 };
 
 export default Friends;
