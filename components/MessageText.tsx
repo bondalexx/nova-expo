@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { Platform, Text, TouchableOpacity } from "react-native";
 
 export function openLink(url: string, title?: string) {
   if (!url) return;
@@ -37,7 +37,19 @@ export default function MessageText({ text, color = "#fff" }: Props) {
     <Text style={{ color, lineHeight: 20 }}>
       {parts.map((p, i) =>
         p.url ? (
-          <TouchableOpacity key={i} onPress={() => openLink(p.url!)}>
+          <TouchableOpacity
+            key={i}
+            onPress={() => {
+              if (Platform.OS === "web") {
+                const safe = /^https?:\/\//i.test(p.url!)
+                  ? p.url!
+                  : `https://${p.url!}`;
+                window.open(safe, "_blank");
+              } else {
+                openLink(p.url!);
+              }
+            }}
+          >
             <Text style={{ color: "#60a5fa", textDecorationLine: "underline" }}>
               {p.text}
             </Text>

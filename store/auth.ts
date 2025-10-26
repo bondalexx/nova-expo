@@ -1,6 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "@/lib/api";
+import { delSecure, getSecure, setSecure } from "@/lib/tokenStorage";
 import { create } from "zustand";
-import api from "../lib/api";
 
 type User = {
   id: string;
@@ -16,22 +16,21 @@ type State = {
   initialized: boolean;
   loading: boolean;
   error: string | null;
+
   restoreFromStorage: () => Promise<void>;
   signIn: (p: { email: string; password: string }) => Promise<void>;
   signOut: () => Promise<void>;
+  setLoading: (loading: boolean) => void;
+  me: () => Promise<void>;
+  editProfile: (p: {
+    displayName: string;
+    email: string | null;
+  }) => Promise<void>;
 };
 
-const TOKEN_KEY = "accessToken";
-
-async function setToken(token: string) {
-  await AsyncStorage.setItem(TOKEN_KEY, token);
-}
-async function getToken() {
-  return AsyncStorage.getItem(TOKEN_KEY);
-}
-async function deleteToken() {
-  await AsyncStorage.removeItem(TOKEN_KEY);
-}
+const ACCESS = "accessToken";
+const REFRESH = "refreshToken";
+const ME_ENDPOINT = "/auth/me";
 
 export const useAuth = create<State>((set, get) => ({
   user: null,
@@ -41,37 +40,38 @@ export const useAuth = create<State>((set, get) => ({
   loading: false,
   error: null,
 
+  setLoading: (loading) => set({ loading }),
+
   restoreFromStorage: async () => {
     try {
-      const token = await getToken();
-
+      const token = await getSecure(ACCESS);
       if (!token) {
-        delete api.defaults.headers.common["Authorization"];
         set({
           initialized: true,
-          accessToken: null,
           isAuthenticated: false,
+          accessToken: null,
           user: null,
         });
         return;
       }
+      set({ accessToken: token, isAuthenticated: true });
 
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      set({ accessToken: token });
-
-      if (!get().user) {
-        const { data } = await api.get<User>("/me");
+      try {
+        const { data } = await api.get<User>(ME_ENDPOINT);
         set({ user: data });
+      } catch (err) {
+        console.warn("[auth] /me failed during restore:", err);
       }
 
-      set({ isAuthenticated: true, initialized: true });
+      set({ initialized: true });
     } catch (e) {
-      // any error → clear auth
-      delete api.defaults.headers.common["Authorization"];
+      console.warn("[auth] restore error", e);
+      await delSecure(ACCESS);
+      await delSecure(REFRESH);
       set({
         initialized: true,
-        accessToken: null,
         isAuthenticated: false,
+        accessToken: null,
         user: null,
       });
     }
@@ -83,39 +83,64 @@ export const useAuth = create<State>((set, get) => ({
       const res = await api.post("/auth/signin", { email, password }, {
         requiresAuth: false,
       } as any);
-
-      const { accessToken, user } = res.data as {
+      const { accessToken, refreshToken, user } = res.data as {
         accessToken: string;
+        refreshToken?: string | null;
         user?: User;
       };
 
-      await setToken(accessToken);
+      await setSecure(ACCESS, accessToken);
+      await setSecure(REFRESH, refreshToken ?? null);
 
-      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       set({
         accessToken,
         user: user ?? null,
         isAuthenticated: true,
+        initialized: true,
+        loading: false,
+        error: null,
       });
-      await get().restoreFromStorage();
-
-      set({ loading: false });
     } catch (e: any) {
-      delete api.defaults.headers.common["Authorization"];
+      await delSecure(ACCESS);
+      await delSecure(REFRESH);
       set({
-        error: e?.response?.data?.message || "Sign-in failed",
         loading: false,
         isAuthenticated: false,
         accessToken: null,
         user: null,
+        error: e?.response?.data?.message || "Sign-in failed",
       });
       throw e;
     }
   },
 
   signOut: async () => {
-    await deleteToken();
-    delete api.defaults.headers.common["Authorization"];
+    await delSecure(ACCESS);
+    await delSecure(REFRESH);
     set({ user: null, accessToken: null, isAuthenticated: false });
+  },
+
+  me: async () => {
+    try {
+      set({ loading: true });
+      const { data } = await api.get<User>(ME_ENDPOINT);
+      set({ user: data });
+    } catch (err) {
+      console.warn("[auth] /me failed:", err);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  editProfile: async (p) => {
+    try {
+      set({ loading: true });
+      const { data } = await api.patch<User>(ME_ENDPOINT, p);
+      set({ user: data });
+    } catch (err) {
+      console.warn("[auth] /me update failed:", err);
+    } finally {
+      set({ loading: false });
+    }
   },
 }));

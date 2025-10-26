@@ -1,8 +1,7 @@
-import Constants from "expo-constants";
 import { io, Socket } from "socket.io-client";
 
-const API_URL =
-  (Constants.expoConfig?.extra as any)?.API_URL ?? "http://10.0.2.2:4000";
+// const API_URL = "http://10.0.2.2:4000";
+const API_URL = "http://localhost:4000";
 
 let socket: Socket | null = null;
 

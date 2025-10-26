@@ -1,24 +1,27 @@
-import { Stack } from "expo-router";
+import { useAuth } from "@/store/auth";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { Slot } from "expo-router";
 import { useEffect } from "react";
 import FlashMessage from "react-native-flash-message";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import "../global.css";
-import { useAuth } from "../store/auth";
+import "react-native-reanimated";
 
 export default function RootLayout() {
-  const restore = useAuth((s) => s.restoreFromStorage);
+  const { initialized, isAuthenticated, restoreFromStorage, accessToken } =
+    useAuth();
 
   useEffect(() => {
-    restore();
-  }, [restore]);
+    restoreFromStorage();
+  }, [restoreFromStorage]);
+
+  console.log(accessToken);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-      <FlashMessage position="top" />
+      <BottomSheetModalProvider>
+        <Slot />
+        <FlashMessage position="top" />
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }

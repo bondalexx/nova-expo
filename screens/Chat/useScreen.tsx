@@ -73,7 +73,7 @@ const useScreen = () => {
   const listRef = useRef<FlatList<Message>>(null);
   const sockRef = useRef<ReturnType<typeof connectWithToken> | null>(null);
   const joinedRoomsRef = useRef<{ chat?: string; user?: string | null }>({});
-
+  console.log(user);
   const otherName = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
@@ -344,6 +344,8 @@ const useScreen = () => {
     </View>
   );
 
+  console.log(messages);
+
   const messagesList = (
     <FlatList
       ref={listRef}
@@ -351,7 +353,7 @@ const useScreen = () => {
       data={messages}
       keyExtractor={(m) => m.id}
       renderItem={({ item }) => {
-        const mine = item.senderId === user?.id;
+        const mine = item.sender.id === user?.id;
         return (
           <View
             className={`rounded-xl py-2 px-[10px] my-1 max-w-[80%] ${

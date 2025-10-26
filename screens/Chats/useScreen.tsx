@@ -45,11 +45,6 @@ const useScreen = () => {
           <Text className="text-white text-base font-bold" numberOfLines={1}>
             {item.otherUser?.displayName ?? "Unknown"}
           </Text>
-
-          {/* Optional: add a preview/subtitle if you have lastMessage */}
-          {/* <Text className="mt-0.5 text-[#8F8F8F] text-[13px]" numberOfLines={1}>
-        {item.lastMessage ?? ""}
-      </Text> */}
         </View>
 
         {item.updatedAt ? (
@@ -65,7 +60,7 @@ const useScreen = () => {
   };
 
   const ItemsList = (
-    <View className="flex-1 bg-[#0A0A0A]">
+    <View className="flex-1 bg-[#0A0A0A] p-4">
       <FlatList
         data={chats}
         keyExtractor={(c) => c.id}

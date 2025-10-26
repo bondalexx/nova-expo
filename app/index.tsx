@@ -7,11 +7,17 @@ export default function Index() {
 
   if (!initialized) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#0A0A0A",
+        }}
+      >
+        <ActivityIndicator size="large" color="#fff" />
       </View>
     );
   }
-
   return <Redirect href={isAuthenticated ? "/chats" : "/sign-in"} />;
 }

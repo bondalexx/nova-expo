@@ -4,6 +4,8 @@ import { KeyboardAvoidingView, Platform, Text, View } from "react-native";
 
 import useScreen from "./useScreen";
 
+import Logo from "../../assets/images/logo.svg";
+
 const SignUp = () => {
   const { RegisterForm } = useScreen();
 
@@ -12,10 +14,12 @@ const SignUp = () => {
       className="flex-1 bg-[#0A0A0A] justify-center items-center"
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View className="flex-col items-center gap-4">
+      <View className="flex-col items-center gap-4 text-white">
+        <Logo width={64} height={64} />
         <Text className="text-4xl font-bold text-white mb-2 text-center">
           Create account in Nova
         </Text>
+
         {RegisterForm}
         <Text className="text-base text-white mt-1">
           Already have an account?{" "}

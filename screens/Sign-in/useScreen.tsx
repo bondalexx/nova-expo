@@ -1,8 +1,8 @@
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Text, TouchableOpacity } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
+import { Alert, Text, TextInput, TouchableOpacity } from "react-native";
+import "../../global.css";
 
 import { useAuth } from "../../store/auth";
 

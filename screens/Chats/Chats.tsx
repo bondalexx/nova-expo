@@ -1,16 +1,8 @@
-import { storage } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import useScreen from "./useScreen";
 const Chats = () => {
   const { ItemsList, loading, error, chats } = useScreen();
-  useEffect(() => {
-    (async () => {
-      const token = await storage.getString("sessionToken");
-      console.log("Session Token:", token);
-    })();
-  }, []);
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
